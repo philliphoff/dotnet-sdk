@@ -23,7 +23,7 @@ namespace Dapr.Client.Test
     using FluentAssertions;
     using Google.Protobuf;
     using Grpc.Core;
-    using Moq;
+    using NSubstitute;
     using Xunit;
 
     public class InvokeBindingApiTest
@@ -185,8 +185,8 @@ namespace Dapr.Client.Test
             var rpcException = new RpcException(rpcStatus, new Metadata(), "not gonna work");
 
             client.Mock
-                .Setup(m => m.InvokeBindingAsync(It.IsAny<Autogen.Grpc.v1.InvokeBindingRequest>(), It.IsAny<CallOptions>()))
-                .Throws(rpcException);
+                .InvokeBindingAsync(Arg.Any<Autogen.Grpc.v1.InvokeBindingRequest>(), Arg.Any<CallOptions>())
+                .Returns(_ => throw rpcException);
 
             var ex = await Assert.ThrowsAsync<DaprException>(async () => 
             {

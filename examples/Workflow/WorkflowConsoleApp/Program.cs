@@ -108,7 +108,7 @@ while (true)
 
     // Construct the order with a unique order ID
     string orderId = $"{itemName.ToLowerInvariant()}-{Guid.NewGuid().ToString()[..8]}";
-    double totalCost = amount * item.PerItemCost;
+    decimal totalCost = amount * item.PerItemCost;
     var orderInfo = new OrderPayload(itemName.ToLowerInvariant(), totalCost, amount);
 
     // Start the workflow using the order ID as the workflow ID

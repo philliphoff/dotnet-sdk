@@ -21,7 +21,7 @@ namespace Dapr.Client.Test
     using Dapr.Client.Autogen.Grpc.v1;
     using FluentAssertions;
     using Grpc.Core;
-    using Moq;
+    using NSubstitute;
     using Xunit;
 
     public class PublishEventApiTest
@@ -219,8 +219,8 @@ namespace Dapr.Client.Test
 
             // Setup the mock client to throw an Rpc Exception with the expected details info
             client.Mock
-                .Setup(m => m.PublishEventAsync(It.IsAny<Autogen.Grpc.v1.PublishEventRequest>(), It.IsAny<CallOptions>()))
-                .Throws(rpcException);
+                .PublishEventAsync(Arg.Any<Autogen.Grpc.v1.PublishEventRequest>(), Arg.Any<CallOptions>())
+                .Returns(_ => throw rpcException);
 
             var ex = await Assert.ThrowsAsync<DaprException>(async () =>
             {

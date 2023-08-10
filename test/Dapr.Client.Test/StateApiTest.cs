@@ -23,13 +23,13 @@ namespace Dapr.Client.Test
     using Google.Protobuf;
     using Grpc.Core;
     using Grpc.Net.Client;
-    using Moq;
     using StateConsistency = Dapr.Client.Autogen.Grpc.v1.StateOptions.Types.StateConsistency;
     using StateConcurrency = Dapr.Client.Autogen.Grpc.v1.StateOptions.Types.StateConcurrency;
     using Xunit;
     using System.Threading;
     using System.Net.Http;
     using System.Text;
+    using NSubstitute;
 
     public class StateApiTest
     {
@@ -822,8 +822,8 @@ namespace Dapr.Client.Test
 
             // Setup the mock client to throw an Rpc Exception with the expected details info
             client.Mock
-                .Setup(m => m.SaveStateAsync(It.IsAny<Autogen.Grpc.v1.SaveStateRequest>(), It.IsAny<CallOptions>()))
-                .Throws(rpcException);
+                .SaveStateAsync(Arg.Any<Autogen.Grpc.v1.SaveStateRequest>(), Arg.Any<CallOptions>())
+                .Returns(_ => throw rpcException);
 
             var ex = await Assert.ThrowsAsync<DaprException>(async () =>
             {
@@ -843,8 +843,8 @@ namespace Dapr.Client.Test
             var rpcException = new RpcException(new Status(StatusCode.Aborted, $"failed saving state in state store testStore"));
             // Setup the mock client to throw an Rpc Exception with the expected details info
             client.Mock
-                .Setup(m => m.SaveStateAsync(It.IsAny<Autogen.Grpc.v1.SaveStateRequest>(), It.IsAny<CallOptions>()))
-                .Throws(rpcException);
+                .SaveStateAsync(Arg.Any<Autogen.Grpc.v1.SaveStateRequest>(), Arg.Any<CallOptions>())
+                .Returns(_ => throw rpcException);
 
             var operationResult = await client.DaprClient.TrySaveStateAsync("testStore", "test", "testValue", "invalidETag");
             Assert.False(operationResult);
@@ -871,7 +871,7 @@ namespace Dapr.Client.Test
 
             // Setup the mock client to return success
             client.Mock
-                .Setup(m => m.SaveStateAsync(It.IsAny<Autogen.Grpc.v1.SaveStateRequest>(), It.IsAny<CallOptions>()))
+                .SaveStateAsync(Arg.Any<Autogen.Grpc.v1.SaveStateRequest>(), Arg.Any<CallOptions>())
                 .Returns(response);
 
             var result = await client.DaprClient.TrySaveStateAsync("test", "test", "testValue", "");
@@ -890,8 +890,8 @@ namespace Dapr.Client.Test
 
             // Setup the mock client to throw an Rpc Exception with the expected details info
             client.Mock
-                .Setup(m => m.DeleteStateAsync(It.IsAny<Autogen.Grpc.v1.DeleteStateRequest>(), It.IsAny<CallOptions>()))
-                .Throws(rpcException);
+                .DeleteStateAsync(Arg.Any<Autogen.Grpc.v1.DeleteStateRequest>(), Arg.Any<CallOptions>())
+                .Returns(_ => throw rpcException);
 
             var ex = await Assert.ThrowsAsync<DaprException>(async () =>
             {
@@ -921,7 +921,7 @@ namespace Dapr.Client.Test
 
             // Setup the mock client to return success
             client.Mock
-                .Setup(m => m.DeleteStateAsync(It.IsAny<Autogen.Grpc.v1.DeleteStateRequest>(), It.IsAny<CallOptions>()))
+                .DeleteStateAsync(Arg.Any<Autogen.Grpc.v1.DeleteStateRequest>(), Arg.Any<CallOptions>())
                 .Returns(response);
 
             var result = await client.DaprClient.TryDeleteStateAsync("test", "test", "");
@@ -939,8 +939,8 @@ namespace Dapr.Client.Test
             var rpcException = new RpcException(new Status(StatusCode.Aborted, $"failed deleting state with key test"));
             // Setup the mock client to throw an Rpc Exception with the expected details info
             client.Mock
-                .Setup(m => m.DeleteStateAsync(It.IsAny<Autogen.Grpc.v1.DeleteStateRequest>(), It.IsAny<CallOptions>()))
-                .Throws(rpcException);
+                .DeleteStateAsync(Arg.Any<Autogen.Grpc.v1.DeleteStateRequest>(), Arg.Any<CallOptions>())
+                .Returns(_ => throw rpcException);
 
             var operationResult = await client.DaprClient.TryDeleteStateAsync("test", "test", "invalidETag");
             Assert.False(operationResult);
