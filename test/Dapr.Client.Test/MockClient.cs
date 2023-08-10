@@ -19,17 +19,17 @@ namespace Dapr.Client
     using System.Threading.Tasks;
     using Grpc.Core;
     using Grpc.Net.Client;
-    using Moq;
+    using NSubstitute;
 
     public class MockClient
     {
         public MockClient()
         {
-            Mock = new Mock<Autogen.Grpc.v1.Dapr.DaprClient>(MockBehavior.Strict);
-            DaprClient = new DaprClientGrpc(GrpcChannel.ForAddress("http://localhost"), Mock.Object, new HttpClient(), new Uri("http://localhost:3500"), new JsonSerializerOptions(), default);
+            Mock = Substitute.For<Autogen.Grpc.v1.Dapr.DaprClient>();
+            DaprClient = new DaprClientGrpc(GrpcChannel.ForAddress("http://localhost"), Mock, new HttpClient(), new Uri("http://localhost:3500"), new JsonSerializerOptions(), default);
         }
 
-        public Mock<Autogen.Grpc.v1.Dapr.DaprClient> Mock { get; }
+        public Autogen.Grpc.v1.Dapr.DaprClient Mock { get; }
 
         public DaprClient DaprClient { get; }
 

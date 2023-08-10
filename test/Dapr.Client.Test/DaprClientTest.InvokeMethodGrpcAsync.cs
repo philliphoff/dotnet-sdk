@@ -20,7 +20,7 @@ using FluentAssertions;
 using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
 using Grpc.Net.Client;
-using Moq;
+using NSubstitute;
 using Xunit;
 
 using Request = Dapr.Client.Autogen.Test.Grpc.v1.Request;
@@ -102,8 +102,8 @@ namespace Dapr.Client.Test
 
             // Setup the mock client to throw an Rpc Exception with the expected details info
             client.Mock
-                .Setup(m => m.InvokeServiceAsync(It.IsAny<Autogen.Grpc.v1.InvokeServiceRequest>(), It.IsAny<CallOptions>()))
-                .Throws(rpcException);
+                .InvokeServiceAsync(Arg.Any<Autogen.Grpc.v1.InvokeServiceRequest>(), Arg.Any<CallOptions>())
+                .Returns(_ => throw rpcException);
 
             var ex = await Assert.ThrowsAsync<InvocationException>(async () =>
             {
@@ -167,8 +167,8 @@ namespace Dapr.Client.Test
             var rpcException = new RpcException(rpcStatus, new Metadata(), rpcExceptionMessage);
 
             client.Mock
-                .Setup(m => m.InvokeServiceAsync(It.IsAny<Autogen.Grpc.v1.InvokeServiceRequest>(), It.IsAny<CallOptions>()))
-                .Throws(rpcException);
+                .InvokeServiceAsync(Arg.Any<Autogen.Grpc.v1.InvokeServiceRequest>(), Arg.Any<CallOptions>())
+                .Returns(_ => throw rpcException);
 
             var ex = await Assert.ThrowsAsync<InvocationException>(async () =>
             {
@@ -194,7 +194,7 @@ namespace Dapr.Client.Test
                 .Build();
 
             client.Mock
-                .Setup(m => m.InvokeServiceAsync(It.IsAny<Autogen.Grpc.v1.InvokeServiceRequest>(), It.IsAny<CallOptions>()))
+                .InvokeServiceAsync(Arg.Any<Autogen.Grpc.v1.InvokeServiceRequest>(), Arg.Any<CallOptions>())
                 .Returns(response);
 
             FluentActions.Awaiting(async () => await client.DaprClient.InvokeMethodGrpcAsync<Request>("test", "test", request)).Should().NotThrow();
@@ -225,8 +225,8 @@ namespace Dapr.Client.Test
 
             // Setup the mock client to throw an Rpc Exception with the expected details info
             client.Mock
-                .Setup(m => m.InvokeServiceAsync(It.IsAny<Autogen.Grpc.v1.InvokeServiceRequest>(), It.IsAny<CallOptions>()))
-                .Throws(rpcException);
+                .InvokeServiceAsync(Arg.Any<Autogen.Grpc.v1.InvokeServiceRequest>(), Arg.Any<CallOptions>())
+                .Returns(_ => throw rpcException);
 
             var ex = await Assert.ThrowsAsync<InvocationException>(async () =>
             {
@@ -368,8 +368,8 @@ namespace Dapr.Client.Test
             var rpcException = new RpcException(rpcStatus, new Metadata(), rpcExceptionMessage);
 
             client.Mock
-                .Setup(m => m.GetMetadataAsync(It.IsAny<Empty>(), It.IsAny<CallOptions>()))
-                .Throws(rpcException);
+                .GetMetadataAsync(Arg.Any<Empty>(), Arg.Any<CallOptions>())
+                .Returns(_ => throw rpcException);
 
             var ex = await Assert.ThrowsAsync<DaprException>(async () =>
             {
@@ -422,8 +422,8 @@ namespace Dapr.Client.Test
             var rpcException = new RpcException(rpcStatus, new Metadata(), rpcExceptionMessage);
 
             client.Mock
-                .Setup(m => m.SetMetadataAsync(It.IsAny<SetMetadataRequest>(), It.IsAny<CallOptions>()))
-                .Throws(rpcException);
+                .SetMetadataAsync(Arg.Any<SetMetadataRequest>(), Arg.Any<CallOptions>())
+                .Returns(_ => throw rpcException);
 
             var ex = await Assert.ThrowsAsync<DaprException>(async () =>
             {
