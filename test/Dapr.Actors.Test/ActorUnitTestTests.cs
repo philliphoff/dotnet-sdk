@@ -18,7 +18,7 @@ using System.Threading.Tasks;
 using Dapr.Actors.Client;
 using Dapr.Actors.Runtime;
 using Microsoft.Extensions.Logging.Abstractions;
-using Moq;
+using NSubstitute;
 using Xunit;
 
 namespace Dapr.Actors
@@ -31,17 +31,17 @@ namespace Dapr.Actors
         {
             var timers = new List<ActorTimer>();
 
-            var timerManager = new Mock<ActorTimerManager>(MockBehavior.Strict);
+            var timerManager = Substitute.For<ActorTimerManager>();
             timerManager
-                .Setup(tm => tm.RegisterTimerAsync(It.IsAny<ActorTimer>()))
-                .Callback<ActorTimer>(timer => timers.Add(timer))
-                .Returns(Task.CompletedTask);
+                .RegisterTimerAsync(Arg.Any<ActorTimer>())
+                .Returns(Task.CompletedTask)
+                .AndDoes(callInfo => timers.Add(callInfo.Arg<ActorTimer>()));
             timerManager
-                .Setup(tm => tm.UnregisterTimerAsync(It.IsAny<ActorTimerToken>()))
-                .Callback<ActorTimerToken>(timer => timers.RemoveAll(t => t.Name == timer.Name))
-                .Returns(Task.CompletedTask);
+                .UnregisterTimerAsync(Arg.Any<ActorTimerToken>())
+                .Returns(Task.CompletedTask)
+                .AndDoes(callInfo => timers.RemoveAll(t => t.Name == callInfo.Arg<ActorTimerToken>().Name));
 
-            var host = ActorHost.CreateForTest<CoolTestActor>(new ActorTestOptions(){ TimerManager = timerManager.Object, });
+            var host = ActorHost.CreateForTest<CoolTestActor>(new ActorTestOptions(){ TimerManager = timerManager, });
             var actor = new CoolTestActor(host);
 
             // Start the timer
@@ -76,20 +76,20 @@ namespace Dapr.Actors
             var reminders = new List<ActorReminder>();
             IActorReminder getReminder = null;
 
-            var timerManager = new Mock<ActorTimerManager>(MockBehavior.Strict);
+            var timerManager = Substitute.For<ActorTimerManager>();
             timerManager
-                .Setup(tm => tm.RegisterReminderAsync(It.IsAny<ActorReminder>()))
-                .Callback<ActorReminder>(reminder => reminders.Add(reminder))
-                .Returns(Task.CompletedTask);
+                .RegisterReminderAsync(Arg.Any<ActorReminder>())
+                .Returns(Task.CompletedTask)
+                .AndDoes(callInfo => reminders.Add(callInfo.Arg<ActorReminder>()));
             timerManager
-                .Setup(tm => tm.UnregisterReminderAsync(It.IsAny<ActorReminderToken>()))
-                .Callback<ActorReminderToken>(reminder => reminders.RemoveAll(t => t.Name == reminder.Name))
-                .Returns(Task.CompletedTask);
+                .UnregisterReminderAsync(Arg.Any<ActorReminderToken>())
+                .Returns(Task.CompletedTask)
+                .AndDoes(callInfo => reminders.RemoveAll(t => t.Name == callInfo.Arg<ActorReminderToken>().Name));
             timerManager
-                .Setup(tm => tm.GetReminderAsync(It.IsAny<ActorReminderToken>()))
-                .Returns(() => Task.FromResult(getReminder));
+                .GetReminderAsync(Arg.Any<ActorReminderToken>())
+                .Returns(_ => Task.FromResult(getReminder));
 
-            var host = ActorHost.CreateForTest<CoolTestActor>(new ActorTestOptions(){ TimerManager = timerManager.Object, });
+            var host = ActorHost.CreateForTest<CoolTestActor>(new ActorTestOptions(){ TimerManager = timerManager, });
             var actor = new CoolTestActor(host);
 
             // Start the reminder

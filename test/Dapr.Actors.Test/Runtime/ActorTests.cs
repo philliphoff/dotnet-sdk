@@ -18,7 +18,7 @@ namespace Dapr.Actors.Test.Runtime
     using System.Threading.Tasks;
     using Dapr.Actors.Runtime;
     using FluentAssertions;
-    using Moq;
+    using NSubstitute;
     using Xunit;
 
     public sealed class ActorTests
@@ -26,8 +26,8 @@ namespace Dapr.Actors.Test.Runtime
         [Fact]
         public void TestNewActorWithMockStateManager()
         {
-            var mockStateManager = new Mock<IActorStateManager>();
-            var testDemoActor = this.CreateTestDemoActor(mockStateManager.Object);
+            var mockStateManager = Substitute.For<IActorStateManager>();
+            var testDemoActor = this.CreateTestDemoActor(mockStateManager);
             testDemoActor.Host.Should().NotBeNull();
             testDemoActor.Id.Should().NotBeNull();
         }
@@ -35,21 +35,21 @@ namespace Dapr.Actors.Test.Runtime
         [Fact]
         public async Task TestSaveState()
         {
-            var mockStateManager = new Mock<IActorStateManager>();
-            mockStateManager.Setup(manager => manager.SaveStateAsync(It.IsAny<CancellationToken>()));
-            var testDemoActor = this.CreateTestDemoActor(mockStateManager.Object);
+            var mockStateManager = Substitute.For<IActorStateManager>();
+            mockStateManager.SaveStateAsync(Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
+            var testDemoActor = this.CreateTestDemoActor(mockStateManager);
             await testDemoActor.SaveTestState();
-            mockStateManager.Verify(manager => manager.SaveStateAsync(It.IsAny<CancellationToken>()), Times.Once);
+            await mockStateManager.Received(1).SaveStateAsync(Arg.Any<CancellationToken>());
         }
 
         [Fact]
         public async Task TestResetStateAsync()
         {
-            var mockStateManager = new Mock<IActorStateManager>();
-            mockStateManager.Setup(manager => manager.ClearCacheAsync(It.IsAny<CancellationToken>()));
-            var testDemoActor = this.CreateTestDemoActor(mockStateManager.Object);
+            var mockStateManager = Substitute.For<IActorStateManager>();
+            mockStateManager.ClearCacheAsync(Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
+            var testDemoActor = this.CreateTestDemoActor(mockStateManager);
             await testDemoActor.ResetTestStateAsync();
-            mockStateManager.Verify(manager => manager.ClearCacheAsync(It.IsAny<CancellationToken>()), Times.Once);
+            await mockStateManager.Received(1).ClearCacheAsync(Arg.Any<CancellationToken>());
         }
 
         [Theory]
@@ -59,9 +59,9 @@ namespace Dapr.Actors.Test.Runtime
         [InlineData("TimerCallbackOverloaded", "Timer callback method: TimerCallbackOverloaded cannot be overloaded.")]
         public void ValidateTimerCallback_CallbackMethodDoesNotMeetRequirements(string callback, string expectedErrorMessage)
         {
-            var mockStateManager = new Mock<IActorStateManager>();
-            mockStateManager.Setup(manager => manager.ClearCacheAsync(It.IsAny<CancellationToken>()));
-            var testDemoActor = this.CreateTestDemoActor(mockStateManager.Object);
+            var mockStateManager = Substitute.For<IActorStateManager>();
+            mockStateManager.ClearCacheAsync(Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
+            var testDemoActor = this.CreateTestDemoActor(mockStateManager);
 
             ;
             FluentActions.Invoking(() =>
@@ -79,9 +79,9 @@ namespace Dapr.Actors.Test.Runtime
         [InlineData("TimerCallbackStatic")]
         public void ValidateTimerCallback_CallbackMethodMeetsRequirements(string callback)
         {
-            var mockStateManager = new Mock<IActorStateManager>();
-            mockStateManager.Setup(manager => manager.ClearCacheAsync(It.IsAny<CancellationToken>()));
-            var testDemoActor = this.CreateTestDemoActor(mockStateManager.Object);
+            var mockStateManager = Substitute.For<IActorStateManager>();
+            mockStateManager.ClearCacheAsync(Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
+            var testDemoActor = this.CreateTestDemoActor(mockStateManager);
 
             ;
             FluentActions.Invoking(() =>
@@ -95,9 +95,9 @@ namespace Dapr.Actors.Test.Runtime
         [InlineData("TimerCallbackStatic")]
         public void GetMethodInfoUsingReflection_MethodsMatchingBindingFlags(string callback)
         {
-            var mockStateManager = new Mock<IActorStateManager>();
-            mockStateManager.Setup(manager => manager.ClearCacheAsync(It.IsAny<CancellationToken>()));
-            var testDemoActor = this.CreateTestDemoActor(mockStateManager.Object);
+            var mockStateManager = Substitute.For<IActorStateManager>();
+            mockStateManager.ClearCacheAsync(Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
+            var testDemoActor = this.CreateTestDemoActor(mockStateManager);
             var methodInfo = testDemoActor.GetMethodInfoUsingReflection(testDemoActor.Host.ActorTypeInfo.ImplementationType, callback);
             Assert.NotNull(methodInfo);
         }
@@ -106,9 +106,9 @@ namespace Dapr.Actors.Test.Runtime
         [InlineData("TestActor")] // Constructor
         public void GetMethodInfoUsingReflection_MethodsNotMatchingBindingFlags(string callback)
         {
-            var mockStateManager = new Mock<IActorStateManager>();
-            mockStateManager.Setup(manager => manager.ClearCacheAsync(It.IsAny<CancellationToken>()));
-            var testDemoActor = this.CreateTestDemoActor(mockStateManager.Object);
+            var mockStateManager = Substitute.For<IActorStateManager>();
+            mockStateManager.ClearCacheAsync(Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
+            var testDemoActor = this.CreateTestDemoActor(mockStateManager);
             var methodInfo = testDemoActor.GetMethodInfoUsingReflection(testDemoActor.Host.ActorTypeInfo.ImplementationType, callback);
             Assert.Null(methodInfo);
         }

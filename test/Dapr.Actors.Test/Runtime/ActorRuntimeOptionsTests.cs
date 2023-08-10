@@ -14,7 +14,7 @@
 namespace Dapr.Actors.Test.Runtime
 {
     using Dapr.Actors.Runtime;
-    using Moq;
+    using NSubstitute;
     using Xunit;
     using System;
     using FluentAssertions;
@@ -29,7 +29,7 @@ namespace Dapr.Actors.Test.Runtime
             var host = ActorHost.CreateForTest<TestActor>();
             var actor = new TestActor(host);
 
-            var activator = Mock.Of<ActorActivator>();
+            var activator = Substitute.For<ActorActivator>();
 
             var actorRuntimeOptions = new ActorRuntimeOptions();
             actorRuntimeOptions.Actors.RegisterActor<TestActor>(registration =>
