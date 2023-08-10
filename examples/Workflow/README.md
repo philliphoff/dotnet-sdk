@@ -16,7 +16,7 @@ It utilizes the workflow SDK as well as the workflow management API for starting
 The main `Program.cs` file contains the main setup of the app, including  the registration of the workflow and workflow activities.
 The workflow definition is found in the `Workflows` directory and the workflow activity definitions are found in the `Activities` directory.
 
-This sample also contains a [WorkflowUnitTest](./WorkflowUnitTest) .NET project that utilizes [xUnit](https://xunit.net/) and [Moq](https://github.com/moq/moq) to test the workflow logic.
+This sample also contains a [WorkflowUnitTest](./WorkflowUnitTest) .NET project that utilizes [xUnit](https://xunit.net/) and [NSubstitute](https://github.com/nsubstitute/NSubstitute) to test the workflow logic.
 It works by creating an instance of the `OrderProcessingWorkflow` (defined in the `WorkflowConsoleApp` project), mocking activity calls, and testing the inputs and outputs.
 The tests also verify that outputs of the workflow.
 
