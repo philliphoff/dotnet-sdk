@@ -112,18 +112,8 @@ namespace IDemoActorInterface
     /// <summary>
     /// Data Used by the Sample Actor.
     /// </summary>
-    public class MyData
+    public record MyData(string PropertyA, string PropertyB)
     {
-        /// <summary>
-        /// Gets or sets the value for PropertyA.
-        /// </summary>
-        public string PropertyA { get; set; }
-
-        /// <summary>
-        /// Gets or sets the value for PropertyB.
-        /// </summary>
-        public string PropertyB { get; set; }
-
         /// <inheritdoc/>
         public override string ToString()
         {

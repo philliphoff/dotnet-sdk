@@ -19,6 +19,7 @@ namespace ActorClient
     using Dapr.Actors;
     using Dapr.Actors.Client;
     using Dapr.Actors.Communication;
+    using Dapr.Actors.Runtime;
     using IDemoActorInterface;
 
     /// <summary>
@@ -33,18 +34,14 @@ namespace ActorClient
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public static async Task Main(string[] args)
         {
-            var data = new MyData()
-            {
-                PropertyA = "ValueA",
-                PropertyB = "ValueB",
-            };
+            var data = new MyData("ValueA", "ValueB");
 
             // Create an actor Id.
             var actorId = new ActorId("abc");
 
             // Make strongly typed Actor calls with Remoting.
             // DemoActor is the type registered with Dapr runtime in the service.
-            var proxy = ActorProxy.Create<IDemoActor>(actorId, "DemoActor");
+            var proxy = ActorProxy.Create<IDemoActor>(actorId, "DemoActor", new ActorProxyOptions { UseJsonSerialization = true });
 
             Console.WriteLine("Making call using actor proxy to save data.");
             await proxy.SaveData(data);

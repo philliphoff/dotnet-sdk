@@ -13,6 +13,7 @@
 
 namespace DaprDemoActor
 {
+    using Dapr.Actors.Runtime;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.Configuration;
@@ -33,7 +34,8 @@ namespace DaprDemoActor
             services.AddSingleton<BankService>();
             services.AddActors(options =>
             {
-                options.Actors.RegisterActor<DemoActor>();
+                options.UseJsonSerialization = true;
+                options.Actors.RegisterActor<DemoActor>(new ActorRuntimeOptions { UseJsonSerialization = true });
             });
         }
 
