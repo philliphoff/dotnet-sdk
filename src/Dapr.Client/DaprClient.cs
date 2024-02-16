@@ -63,7 +63,8 @@ namespace Dapr.Client
         /// </summary>
         /// <param name="appId">
         /// An optional <c>app-id</c>. If specified, the <c>app-id</c> will be configured as the value of 
-        /// <see cref="HttpClient.BaseAddress" /> so that relative URIs can be used.
+        /// <see cref="HttpClient.BaseAddress" /> so that relative URIs can be used. It is mandatory to set this parameter if your app-id contains at least one upper letter.
+        /// If some requests use absolute URL with an app-id which contains at least one upper letter, it will not work, the workaround is to create one HttpClient for each app-id with the app-ip parameter set.
         /// </param>
         /// <param name="daprEndpoint">The HTTP endpoint of the Dapr process to use for service invocation calls.</param>
         /// <param name="daprApiToken">The token to be added to all request headers to Dapr runtime.</param>
@@ -80,7 +81,8 @@ namespace Dapr.Client
             var handler = new InvocationHandler()
             {
                 InnerHandler = new HttpClientHandler(),
-                DaprApiToken = daprApiToken
+                DaprApiToken = daprApiToken,
+                DefaultAppId = appId,
             };
 
             if (daprEndpoint is string)
@@ -210,7 +212,7 @@ namespace Dapr.Client
             string topicName,
             Dictionary<string, string> metadata,
             CancellationToken cancellationToken = default);
-        
+
         /// <summary>
         /// // Bulk Publishes multiple events to the specified topic.
         /// </summary>
@@ -715,6 +717,20 @@ namespace Dapr.Client
         /// <returns>A <see cref="Task{IReadOnlyList}" /> that will return the list of values when the operation has completed.</returns>
         public abstract Task<IReadOnlyList<BulkStateItem>> GetBulkStateAsync(string storeName, IReadOnlyList<string> keys, int? parallelism, IReadOnlyDictionary<string, string> metadata = default, CancellationToken cancellationToken = default);
 
+        /// <summary>
+        /// Gets a list of deserialized values associated with the <paramref name="keys" /> from the Dapr state store. This overload should be used
+        /// if you expect the values of all the retrieved items to match the shape of the indicated <typeparam name="TValue"/>. If you expect that
+        /// the values may differ in type from one another, do not specify the type parameter and instead use the original <see cref="GetBulkStateAsync"/> method
+        /// so the serialized string values will be returned instead.
+        /// </summary>
+        /// <param name="storeName">The name of state store to read from.</param>
+        /// <param name="keys">The list of keys to get values for.</param>
+        /// <param name="parallelism">The number of concurrent get operations the Dapr runtime will issue to the state store. a value equal to or smaller than 0 means max parallelism.</param>
+        /// <param name="metadata">A collection of metadata key-value pairs that will be provided to the state store. The valid metadata keys and values are determined by the type of state store used.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> that can be used to cancel the operation.</param>
+        /// <returns>A <see cref="Task{IReadOnlyList}" /> that will return the list of deserialized values when the operation has completed.</returns>
+        public abstract Task<IReadOnlyList<BulkStateItem<TValue>>> GetBulkStateAsync<TValue>(string storeName, IReadOnlyList<string> keys, int? parallelism, IReadOnlyDictionary<string, string> metadata = default, CancellationToken cancellationToken = default);
+        
         /// <summary>
         /// Saves a list of <paramref name="items" /> to the Dapr state store.
         /// </summary>
